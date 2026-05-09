@@ -23,12 +23,10 @@ describe("创建所有数据 JSON 文件", () => {
       expect(level.id).toBeDefined()
       expect(level.gridSize).toBeDefined()
       expect(level.bossStart).toBeDefined()
-      expect(level.bossStart.x).toBeDefined()
-      expect(level.bossStart.y).toBeDefined()
+      expect(level.bossStart.r).toBeDefined()
+      expect(level.bossStart.c).toBeDefined()
       expect(level.exits).toBeDefined()
-      expect(level.initialObstacles).toBeDefined()
       expect(level.maxSteps).toBeDefined()
-      expect(level.initialObstacles.fixed).toBeInstanceOf(Array)
     }
 
     // 第一关 gridSize 应为 7

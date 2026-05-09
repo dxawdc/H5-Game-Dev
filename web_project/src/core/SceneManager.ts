@@ -7,6 +7,8 @@ export interface Scene {
   onExit(): void
   update(deltaTime: number): void
   render(ctx: CanvasRenderingContext2D): void
+  /** 处理点击/触控事件，返回 true 表示已消费 */
+  handleClick?(x: number, y: number): boolean
 }
 
 export class SceneManager {

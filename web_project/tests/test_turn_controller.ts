@@ -1,17 +1,23 @@
 // test_turn_controller.ts
-// 测试任务：实现回合控制器与胜负判定
+// 测试任务：实现回合控制器与胜负判定（BFS + 偏移坐标）
+// 验收条件：['初始状态为 playerTurn', 'placeObstacle 放置 LIT 格子', '围住 Boss 所有邻格触发胜利', '撤销操作回到上一步']
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { GridManager } from '../src/systems/GridManager'
+import { GridManager, EMPTY, BLOCKED, LIT, BOSS } from '../src/systems/GridManager'
 import { TurnController } from '../src/systems/TurnController'
+import { BossAI } from '../src/systems/BossAI'
 
 describe('TurnController', () => {
   let grid: GridManager
+  let bossAI: BossAI
   let controller: TurnController
 
   beforeEach(() => {
-    grid = new GridManager({ gridSize: 7 })
-    controller = new TurnController(grid, { x: 3, y: 3 }, 30)
+    grid = new GridManager(7)
+    bossAI = new BossAI(grid)
+    const center = Math.floor(7 / 2)
+    grid.setCell(center, center, BOSS)
+    controller = new TurnController(grid, bossAI, { r: center, c: center })
     controller.start()
   })
 
@@ -19,71 +25,70 @@ describe('TurnController', () => {
     expect(controller.phase).toBe('playerTurn')
   })
 
-  it('放置障碍物后障碍物存在', () => {
+  it('放置障碍物后格子变为LIT', () => {
     const result = controller.placeObstacle(3, 2)
     expect(result).toBe(true)
-    expect(grid.hasObstacle(3, 2)).toBe(true)
-    // phase 可能在 bossMoving 或 playerTurn（Boss 移动完后）
+    expect(grid.getCell(3, 2)).toBe(LIT)
   })
 
-  it('Boss到达边界时判定失败', () => {
-    const smallGrid = new GridManager({ gridSize: 3 })
-    const smallCtrl = new TurnController(smallGrid, { x: 1, y: 1 }, 10)
-    smallCtrl.start()
+  it('不可在BOSS位置放置障碍', () => {
+    const result = controller.placeObstacle(3, 3)
+    expect(result).toBe(false)
+  })
 
-    // (0,1) 是边界点，Boss 下一步可能到达
-    // 但我们无法完全控制 A* 的选择，所以在 (1,0) 放置
-    smallCtrl.placeObstacle(1, 0)
-
-    // 检查是否触发失败（Boss 可能已到达边界）
-    if (smallCtrl.phase === 'defeatEscaped') {
-      expect(smallCtrl.phase).toBe('defeatEscaped')
-    }
+  it('非EMPTY格子不可重复放置', () => {
+    controller.placeObstacle(3, 2)
+    const result = controller.placeObstacle(3, 2)
+    expect(result).toBe(false)
   })
 
   it('完全围堵判定胜利', () => {
-    const testGrid = new GridManager({ gridSize: 3 })
-    const testCtrl = new TurnController(testGrid, { x: 1, y: 1 }, 10)
-    testCtrl.start()
-
-    // 连续放置 4 个障碍物围堵 Boss(1,1)
-    testCtrl.placeObstacle(1, 0) // 上方
-    testCtrl.placeObstacle(2, 1) // 右方
-    testCtrl.placeObstacle(1, 2) // 下方
-    testCtrl.placeObstacle(0, 1) // 左方
-
-    const finalPhase = testCtrl.phase
-    expect(['victory' as string, 'defeatEscaped']).toContain(finalPhase)
-  })
-
-  it('禁止连续放置', () => {
-    const result1 = controller.placeObstacle(3, 2)
-    expect(result1).toBe(true)
-
-    // 第二次放置应在 Boss 移动完成后才能进行
-    const currentPhase = controller.phase
-    if (currentPhase !== 'playerTurn') {
-      const result2 = controller.placeObstacle(3, 4)
-      expect(result2).toBe(false)
+    // 7x7 棋盘，Boss 在 (3,3)
+    // 预先在除 (2,2) 外的 5 个邻格放置障碍，然后放置最后一个
+    const nbs = grid.getNeighbors(3, 3)
+    // 将所有邻格设为 BLOCKED（模拟已放置）
+    for (const nb of nbs) {
+      grid.setCell(nb.r, nb.c, BLOCKED)
     }
+    // 留一个 EMPTY，通过 placeObstacle 放置
+    const last = nbs[nbs.length - 1]
+    grid.setCell(last.r, last.c, EMPTY)
+
+    const result = controller.placeObstacle(last.r, last.c)
+    expect(result).toBe(true)
+    // 最后一片放置后 Boss 应被围住，触发胜利
+    expect(controller.phase).toBe('victory')
   })
 
-  it('addSteps增加步数上限', () => {
-    const before = controller.maxSteps
-    controller.addSteps(5)
-    expect(controller.maxSteps).toBe(before + 5)
+  it('撤销操作恢复状态', () => {
+    const stepsBefore = controller.steps
+    controller.placeObstacle(3, 2)
+    expect(controller.steps).toBe(stepsBefore + 1)
+    expect(grid.getCell(3, 2)).toBe(LIT)
+
+    const undone = controller.undo()
+    expect(undone).toBe(true)
+    expect(controller.steps).toBe(stepsBefore)
+    expect(grid.getCell(3, 2)).not.toBe(LIT)
   })
 
-  it('getBossNextMove返回有效移动', () => {
-    const next = controller.getBossNextMove()
-    if (next !== null) {
-      expect(Math.abs(next.x - 3) + Math.abs(next.y - 3)).toBe(1)
-    }
+  it('无历史时撤销返回false', () => {
+    const undone = controller.undo()
+    expect(undone).toBe(false)
+  })
+
+  it('extraMove阻止Boss移动', () => {
+    controller.extraMove = true
+    const result = controller.placeObstacle(3, 2)
+    expect(result).toBe(true)
+    // extraMove 后应回到 playerTurn
+    expect(controller.phase).toBe('playerTurn')
   })
 
   it('reset重置状态', () => {
     controller.placeObstacle(3, 2)
-    controller.reset({ x: 3, y: 3 }, 30)
-    expect(controller.phase).toBe('ready')
+    controller.reset({ r: 3, c: 3 })
+    expect(controller.phase).toBe('playerTurn')
+    expect(controller.steps).toBe(0)
   })
 })
