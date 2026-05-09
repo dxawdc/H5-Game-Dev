@@ -537,10 +537,10 @@
     ]
   },
   "pipeline_status": {
-    "last_completed_agent": "06",
-    "last_completed_at": "2026-05-09T18:25:23.853767",
-    "agent_06_last_done": "task_017",
-    "agent_06_completed": 11,
+    "last_completed_agent": "10",
+    "last_completed_at": "2026-05-09T19:17:00",
+    "agent_06_last_done": "task_032",
+    "agent_06_completed": 32,
     "agent_06_total": 32
   },
   "system_specs": [
