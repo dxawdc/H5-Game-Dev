@@ -1,0 +1,598 @@
+{
+  "meta": {
+    "game_title": "围住Boss",
+    "game_title_en": "SurroundTheBoss",
+    "version": "0.1.0",
+    "genre": [
+      "策略",
+      "解谜"
+    ],
+    "platform": "微信小游戏",
+    "engine": "HTML5 Canvas / WebGL",
+    "generated_at": "2026-05-09T00:00:00"
+  },
+  "display": {
+    "orientation": "portrait",
+    "resolution": "648x1152",
+    "viewport_width": 648,
+    "viewport_height": 1152
+  },
+  "core_loop": {
+    "description": "玩家在网格地图上点击空白点放置障碍物，围堵Boss使其无法移动。每局限定步数内完成围堵即获胜。关卡主要为第2关（9x9网格），玩家反复挑战追求更少步数和更短时间。",
+    "steps": [
+      "进入关卡，网格地图上Boss位于起点",
+      "玩家点击空白格点放置障碍物，阻挡Boss逃跑路线",
+      "Boss沿可通行路径向出口/边界移动（寻路算法）",
+      "重复放置与移动，直到Boss被完全围堵（胜利）或Boss逃出（失败）",
+      "胜利后记录通关步数和时间，可分享成绩；失败后可重新挑战"
+    ],
+    "session_unit": "每局"
+  },
+  "systems": [
+    {
+      "id": "loading_system",
+      "name": "Loading系统",
+      "description": "游戏启动时展示Logo和加载进度条，资源加载完成后进入主界面",
+      "priority": "P0",
+      "complexity": "S",
+      "suggested_script": "LoadingScreen.ts",
+      "suggested_module_type": "Scene"
+    },
+    {
+      "id": "main_menu",
+      "name": "主界面系统",
+      "description": "游戏大厅，含Logo、开始挑战、排行榜、设置、分享入口、换装入口（未来）",
+      "priority": "P0",
+      "complexity": "S",
+      "suggested_script": "MainMenu.ts",
+      "suggested_module_type": "Scene"
+    },
+    {
+      "id": "gameplay_core",
+      "name": "核心玩法系统",
+      "description": "网格地图、Boss寻路AI（A*算法）、障碍物放置、围堵判定、胜负检测",
+      "priority": "P0",
+      "complexity": "L",
+      "suggested_script": "GameplayCore.ts",
+      "suggested_module_type": "Class"
+    },
+    {
+      "id": "level_system",
+      "name": "关卡系统",
+      "description": "关卡配置（7x7教学关、9x9主关卡）、网格生成、障碍物随机分布、难度控制",
+      "priority": "P0",
+      "complexity": "M",
+      "suggested_script": "LevelManager.ts",
+      "suggested_module_type": "Class"
+    },
+    {
+      "id": "item_system",
+      "name": "道具系统",
+      "description": "四类道具：多走1步、返回上1步、重置本关、提示。每局限次数，通过分享/广告获得",
+      "priority": "P0",
+      "complexity": "M",
+      "suggested_script": "ItemSystem.ts",
+      "suggested_module_type": "Class"
+    },
+    {
+      "id": "level_result",
+      "name": "关卡结算系统",
+      "description": "胜利/失败界面展示、统计数据、分享入口、重新挑战入口",
+      "priority": "P0",
+      "complexity": "S",
+      "suggested_script": "LevelResult.ts",
+      "suggested_module_type": "Scene"
+    },
+    {
+      "id": "leaderboard",
+      "name": "排行榜系统",
+      "description": "好友关系链排行榜，按通关数、最少步数、最快时间排名",
+      "priority": "P1",
+      "complexity": "M",
+      "suggested_script": "Leaderboard.ts",
+      "suggested_module_type": "Scene"
+    },
+    {
+      "id": "share_system",
+      "name": "分享系统",
+      "description": "微信分享功能，分享成绩/挑战到好友和朋友圈，附带文案和图片",
+      "priority": "P1",
+      "complexity": "S",
+      "suggested_script": "ShareSystem.ts",
+      "suggested_module_type": "Module"
+    },
+    {
+      "id": "ad_system",
+      "name": "广告变现系统",
+      "description": "激励视频广告，观看广告获得道具；主界面广告（P1）",
+      "priority": "P1",
+      "complexity": "M",
+      "suggested_script": "AdSystem.ts",
+      "suggested_module_type": "Module"
+    },
+    {
+      "id": "settings_system",
+      "name": "设置系统",
+      "description": "音效开关、震动开关、退出挑战选项",
+      "priority": "P1",
+      "complexity": "S",
+      "suggested_script": "SettingsSystem.ts",
+      "suggested_module_type": "Scene"
+    },
+    {
+      "id": "costume_system",
+      "name": "换装系统",
+      "description": "未来P2功能：Boss外观换装，通过活动或广告解锁",
+      "priority": "P2",
+      "complexity": "M",
+      "suggested_script": "CostumeSystem.ts",
+      "suggested_module_type": "Module"
+    }
+  ],
+  "entities": {
+    "boss": [
+      {
+        "id": "boss_default",
+        "name": "Boss（默认）"
+      }
+    ],
+    "obstacle": [
+      {
+        "id": "player_obstacle",
+        "name": "玩家放置障碍物"
+      },
+      {
+        "id": "map_obstacle",
+        "name": "地图固定障碍物"
+      }
+    ],
+    "item": [
+      {
+        "id": "item_extra_step",
+        "name": "多走1步"
+      },
+      {
+        "id": "item_undo",
+        "name": "返回上1步"
+      },
+      {
+        "id": "item_reset",
+        "name": "重置本关"
+      },
+      {
+        "id": "item_hint",
+        "name": "提示"
+      }
+    ],
+    "grid_node": [
+      {
+        "id": "grid_point",
+        "name": "网格格点"
+      },
+      {
+        "id": "grid_edge",
+        "name": "网格边"
+      }
+    ]
+  },
+  "data_files": [
+    {
+      "filename": "levels.json",
+      "path": "src/data/levels.json",
+      "description": "关卡配置：网格大小、障碍物分布、Boss起点和出口位置",
+      "driven_by": "§2.3 核心玩法 - 关卡设计"
+    },
+    {
+      "filename": "items.json",
+      "path": "src/data/items.json",
+      "description": "道具配置：类型、效果描述、每局使用次数上限、获取方式配置",
+      "driven_by": "§2.5 道具"
+    },
+    {
+      "filename": "shop_config.json",
+      "path": "src/data/shop_config.json",
+      "description": "广告/分享奖励配置：各道具获取方式（分享/广告）、次数限制",
+      "driven_by": "§4 广告（变现）"
+    }
+  ],
+  "global_singleton": {
+    "class_name": "GameData",
+    "script_path": "src/core/GameData.ts",
+    "export_name": "GameData",
+    "responsibilities": [
+      "管理游戏全局状态",
+      "管理道具库存与每日刷新",
+      "管理玩家统计数据（通关数、最佳步数、最佳时间）",
+      "存档/读档（localStorage）"
+    ],
+    "key_variables": [
+      {
+        "name": "currentLevel",
+        "type": "int",
+        "description": "当前关卡ID（1或2）",
+        "initial": 1
+      },
+      {
+        "name": "stepCount",
+        "type": "int",
+        "description": "当前对局步数",
+        "initial": 0
+      },
+      {
+        "name": "isBossCaught",
+        "type": "bool",
+        "description": "当前对局是否胜利",
+        "initial": false
+      },
+      {
+        "name": "isBossEscaped",
+        "type": "bool",
+        "description": "当前对局是否失败",
+        "initial": false
+      },
+      {
+        "name": "items",
+        "type": "Dictionary",
+        "description": "当前持有道具及数量",
+        "initial": {}
+      },
+      {
+        "name": "dailyShareCount",
+        "type": "int",
+        "description": "今日已分享次数",
+        "initial": 0
+      },
+      {
+        "name": "dailyAdCount",
+        "type": "int",
+        "description": "今日已看广告次数",
+        "initial": 0
+      },
+      {
+        "name": "bestLevel2Steps",
+        "type": "int",
+        "description": "关卡2历史最少步数",
+        "initial": 999
+      },
+      {
+        "name": "bestLevel2Time",
+        "type": "float",
+        "description": "关卡2历史最快时间（秒）",
+        "initial": 999.0
+      },
+      {
+        "name": "totalClears",
+        "type": "int",
+        "description": "累计通关数（关卡2）",
+        "initial": 0
+      },
+      {
+        "name": "soundEnabled",
+        "type": "bool",
+        "description": "音效开关",
+        "initial": true
+      },
+      {
+        "name": "vibrationEnabled",
+        "type": "bool",
+        "description": "震动开关",
+        "initial": true
+      },
+      {
+        "name": "currentItems",
+        "type": "Dictionary",
+        "description": "当前对局中的道具及数量",
+        "initial": {}
+      },
+      {
+        "name": "undoHistory",
+        "type": "Array",
+        "description": "撤回历史记录（存储上一步操作）",
+        "initial": []
+      }
+    ]
+  },
+  "scene_tree": {
+    "description": "单页面Canvas渲染，所有界面通过场景管理器切换",
+    "root": {
+      "name": "Game",
+      "type": "Scene",
+      "script": "main.ts",
+      "children": [
+        {
+          "name": "Loading",
+          "type": "Scene",
+          "script": "LoadingScreen.ts"
+        },
+        {
+          "name": "MainMenu",
+          "type": "Scene",
+          "script": "MainMenu.ts"
+        },
+        {
+          "name": "GameLevel",
+          "type": "Scene",
+          "script": "GameLevel.ts"
+        },
+        {
+          "name": "LevelResult",
+          "type": "Scene",
+          "script": "LevelResult.ts"
+        },
+        {
+          "name": "Settings",
+          "type": "Scene",
+          "script": "SettingsSystem.ts"
+        },
+        {
+          "name": "Leaderboard",
+          "type": "Scene",
+          "script": "Leaderboard.ts"
+        }
+      ]
+    }
+  },
+  "ui_screens": [
+    {
+      "id": "loading",
+      "name": "加载页",
+      "description": "Logo展示+加载进度条",
+      "script": "LoadingScreen.ts",
+      "priority": "P0"
+    },
+    {
+      "id": "main_menu",
+      "name": "主界面",
+      "description": "游戏大厅含各功能入口",
+      "script": "MainMenu.ts",
+      "priority": "P0"
+    },
+    {
+      "id": "game_level",
+      "name": "关卡界面",
+      "description": "核心玩法界面含网格地图和道具区",
+      "script": "GameLevel.ts",
+      "priority": "P0"
+    },
+    {
+      "id": "level_win",
+      "name": "通关成功",
+      "description": "胜利结算界面含统计数据与分享",
+      "script": "LevelResult.ts",
+      "priority": "P0"
+    },
+    {
+      "id": "level_fail",
+      "name": "通关失败",
+      "description": "失败结算界面含重新挑战与分享",
+      "script": "LevelResult.ts",
+      "priority": "P0"
+    },
+    {
+      "id": "settings",
+      "name": "设置",
+      "description": "音效/震动开关、退出挑战",
+      "script": "SettingsSystem.ts",
+      "priority": "P1"
+    },
+    {
+      "id": "leaderboard",
+      "name": "排行榜",
+      "description": "好友排行榜展示",
+      "script": "Leaderboard.ts",
+      "priority": "P1"
+    },
+    {
+      "id": "item_popup",
+      "name": "道具获得弹窗",
+      "description": "分享/广告获得道具弹窗",
+      "script": "ItemPopup.ts",
+      "priority": "P1"
+    }
+  ],
+  "progression": {
+    "currency": [
+      {
+        "id": "totalClears",
+        "name": "累计通关",
+        "initial": 0
+      }
+    ],
+    "unlock_conditions": [
+      {
+        "entity_id": "level_2",
+        "condition": "通关第1关后自动解锁第2关"
+      }
+    ],
+    "save_fields": [
+      "totalClears",
+      "bestLevel2Steps",
+      "bestLevel2Time",
+      "dailyShareCount",
+      "dailyAdCount",
+      "items",
+      "soundEnabled",
+      "vibrationEnabled",
+      "tutorial_done"
+    ]
+  },
+  "art_style": {
+    "description": "休闲卡通风格，明亮色彩。Boss角色Q版可爱，网格地图清晰易辨识。整体风格轻松诙谐。",
+    "base_prompt_prefix": "casual cartoon style, bright colors, mobile game UI, WeChat mini game style, simple and clean",
+    "color_palette": "明亮色调为主，Boss为红色系，障碍物为灰色/棕色，网格线为浅灰色，背景为浅色渐变",
+    "character_prompt_suffix": "cute cartoon boss character, angry but adorable expression, chibi style, full body",
+    "asset_categories": [
+      {
+        "category": "backgrounds",
+        "count_estimate": 3,
+        "size": "648x1152px"
+      },
+      {
+        "category": "characters",
+        "count_estimate": 3,
+        "size": "100x100px"
+      },
+      {
+        "category": "icons",
+        "count_estimate": 15,
+        "size": "64x64px"
+      },
+      {
+        "category": "ui_elements",
+        "count_estimate": 20,
+        "size": "various"
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "id": "first_clear",
+      "name": "初次通关",
+      "condition": "首次通关第2关",
+      "trigger_event": "levelCleared"
+    },
+    {
+      "id": "speed_demon",
+      "name": "速通达人",
+      "condition": "第2关通关时间<10秒",
+      "trigger_event": "levelCleared"
+    },
+    {
+      "id": "minimalist",
+      "name": "简约派",
+      "condition": "第2关通关步数<20步",
+      "trigger_event": "levelCleared"
+    },
+    {
+      "id": "ten_clears",
+      "name": "十胜将军",
+      "condition": "累计通关第2关10次",
+      "trigger_event": "levelCleared"
+    },
+    {
+      "id": "share_master",
+      "name": "分享达人",
+      "condition": "累计分享10次",
+      "trigger_event": "shared"
+    }
+  ],
+  "test_priorities": [
+    {
+      "system": "gameplay_core",
+      "reason": "核心玩法正确性至关重要",
+      "key_cases": [
+        "Boss寻路算法（A*）在无障碍时能找到出口",
+        "Boss被完全围堵后无法移动（胜利判定）",
+        "Boss到达出口（失败判定）",
+        "障碍物放置后不可再点击",
+        "多走1步道具效果",
+        "撤回上一步道具效果"
+      ]
+    },
+    {
+      "system": "item_system",
+      "reason": "道具涉及分享/广告变现逻辑",
+      "key_cases": [
+        "每局限定道具使用次数",
+        "道具每日刷新",
+        "无道具时正确展示+号",
+        "道具数量为0时正确置灰"
+      ]
+    },
+    {
+      "system": "level_system",
+      "reason": "关卡配置决定游戏体验",
+      "key_cases": [
+        "7x7网格生成正确",
+        "9x9网格生成正确",
+        "随机障碍物分布不阻塞所有路径",
+        "关卡间自动切换"
+      ]
+    }
+  ],
+  "notes": {
+    "gdd_gaps": [
+      {
+        "content": "第2关具体的地图布局和障碍物分布细节未明确定义，需主策划补充",
+        "resolved": false
+      },
+      {
+        "content": "Boss寻路算法的具体实现参数（移动速度、寻路频率等）未定义",
+        "resolved": false
+      },
+      {
+        "content": "换装系统的具体解锁方式和经济模型未定义（P2）",
+        "resolved": false
+      },
+      {
+        "content": "SNS分享的具体文案和图片模板未定义",
+        "resolved": false
+      }
+    ],
+    "tech_risks": [
+      "Boss寻路AI在9x9网格上的性能需要优化",
+      "Canvas渲染在移动端触控响应需优化",
+      "微信小游戏API限制（分享、广告、排行榜）需适配",
+      "每日次数限制需依赖localStorage持久化"
+    ]
+  },
+  "pipeline_status": {
+    "last_completed_agent": "06",
+    "last_completed_at": "2026-05-09T18:25:23.853767",
+    "agent_06_last_done": "task_017",
+    "agent_06_completed": 11,
+    "agent_06_total": 32
+  },
+  "system_specs": [
+    {
+      "system_id": "ad_system",
+      "spec_path": "design/systems/ad_system.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "gameplay_core",
+      "spec_path": "design/systems/gameplay_core.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "item_system",
+      "spec_path": "design/systems/item_system.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "leaderboard",
+      "spec_path": "design/systems/leaderboard.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "level_result",
+      "spec_path": "design/systems/level_result.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "level_system",
+      "spec_path": "design/systems/level_system.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "loading_system",
+      "spec_path": "design/systems/loading_system.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "main_menu",
+      "spec_path": "design/systems/main_menu.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "settings_system",
+      "spec_path": "design/systems/settings_system.md",
+      "status": "draft"
+    },
+    {
+      "system_id": "share_system",
+      "spec_path": "design/systems/share_system.md",
+      "status": "draft"
+    }
+  ]
+}

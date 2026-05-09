@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "extra_step",
+      "name": "多走1步",
+      "description": "当前关卡步数上限增加5步",
+      "icon": "icon_extra_step",
+      "perSessionLimit": 2,
+      "inventoryCap": 10,
+      "effectType": "add_steps",
+      "effectValue": 5
+    },
+    {
+      "id": "undo",
+      "name": "返回上1步",
+      "description": "恢复至上一步的完整棋盘状态",
+      "icon": "icon_undo",
+      "perSessionLimit": 3,
+      "inventoryCap": 10,
+      "effectType": "undo_move",
+      "effectValue": 0
+    },
+    {
+      "id": "reset",
+      "name": "重置本关",
+      "description": "将当前关卡重置到初始状态",
+      "icon": "icon_reset",
+      "perSessionLimit": 99,
+      "inventoryCap": 10,
+      "effectType": "reset_level",
+      "effectValue": 0
+    },
+    {
+      "id": "hint",
+      "name": "提示",
+      "description": "高亮显示推荐的下一个放置点",
+      "icon": "icon_hint",
+      "perSessionLimit": 1,
+      "inventoryCap": 10,
+      "effectType": "show_hint",
+      "effectValue": 0
+    }
+  ]
+}

@@ -1,0 +1,900 @@
+{
+  "meta": {
+    "generated_by": "Agent04",
+    "generated_at": "2026-05-09T18:07:00",
+    "total_design_systems": 10,
+    "notes": "所有任务已按拓扑排序（Kahn算法），Agent 06可直接顺序执行"
+  },
+  "total": 32,
+  "completed": 32,
+  "tasks": [
+    {
+      "id": "task_001",
+      "phase": "foundation",
+      "title": "创建 H5 项目结构",
+      "description": "创建 package.json、vite.config.ts、tsconfig.json、index.html 及标准目录结构（src/core/ src/scenes/ src/systems/ src/entities/ src/ui/ src/data/ src/assets/ src/utils/ tests/）",
+      "files_to_create": [
+        "web_project/package.json",
+        "web_project/vite.config.ts",
+        "web_project/index.html"
+      ],
+      "depends_on": [],
+      "test_file": "web_project/tests/test_project_structure.ts",
+      "test_cases": [
+        "test_项目文件存在",
+        "test_目录结构完整",
+        "test_package_json包含必要依赖"
+      ],
+      "acceptance_criteria": [
+        "package.json 存在且 npm install 可执行",
+        "vite.config.ts 可正常解析",
+        "所有标准目录已创建"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:18:00.459127",
+      "completed_at": "2026-05-09T18:21:48.885431"
+    },
+    {
+      "id": "task_002",
+      "phase": "foundation",
+      "title": "实现 GameData.ts 全局单例",
+      "description": "按 project_context.global_singleton 规范实现 GameData 类，含所有 key_variables 类型注解、get/set 方法、saveToLocalStorage/loadFromLocalStorage、resetToDefaults（测试隔离用）",
+      "files_to_create": [
+        "web_project/src/core/GameData.ts"
+      ],
+      "depends_on": [
+        "task_001"
+      ],
+      "test_file": "web_project/tests/test_game_data.ts",
+      "test_cases": [
+        "test_resetToDefaults_重置所有字段",
+        "test_save_load_localStorage_数据持久化",
+        "test_变量初始值正确",
+        "test_单例模式_全局唯一实例"
+      ],
+      "acceptance_criteria": [
+        "GameData 可正常导入，含 saveData/loadData/resetToDefaults 方法",
+        "resetToDefaults() 将所有变量恢复为初始值",
+        "saveToLocalStorage/loadFromLocalStorage 可正确持久化"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:21:32.166611"
+    },
+    {
+      "id": "task_003",
+      "phase": "foundation",
+      "title": "创建所有数据 JSON 文件",
+      "description": "创建 levels.json（关卡配置：7x7教学关、9x9主关卡）、items.json（四类道具定义）、shop_config.json（广告/分享获取方式配置），含完整初始数据结构",
+      "files_to_create": [
+        "web_project/src/data/levels.json",
+        "web_project/src/data/items.json",
+        "web_project/src/data/shop_config.json"
+      ],
+      "depends_on": [
+        "task_001"
+      ],
+      "test_file": "web_project/tests/test_data_files.ts",
+      "test_cases": [
+        "test_levels_json_结构完整",
+        "test_items_json_四类道具定义",
+        "test_shop_config_json_获取方式配置",
+        "test_JSON文件合法可解析"
+      ],
+      "acceptance_criteria": [
+        "所有 data_files 中的文件存在且是合法 JSON",
+        "levels.json 包含 gridSize bossStart exits initialObstacles maxSteps 字段",
+        "items.json 包含四种道具类型及每局限次配置"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:21:32.166611"
+    },
+    {
+      "id": "task_004",
+      "phase": "foundation",
+      "title": "安装并验证 Vitest 测试框架",
+      "description": "在 package.json 中添加 Vitest 依赖，配置 vitest.config.ts，创建空测试确认框架可用",
+      "files_to_create": [
+        "web_project/vitest.config.ts"
+      ],
+      "depends_on": [
+        "task_001"
+      ],
+      "test_file": "web_project/tests/test_vitest_smoke.ts",
+      "test_cases": [
+        "test_vitest_正常运行",
+        "test_基本断言功能"
+      ],
+      "acceptance_criteria": [
+        "vitest 已安装至 devDependencies",
+        "npx vitest run 可正常执行并退出"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:21:32.166611"
+    },
+    {
+      "id": "task_005",
+      "phase": "core_systems",
+      "title": "实现 EventBus 事件总线与 SceneManager 场景管理器",
+      "description": "创建 EventBus 单例（支持 on/off/emit 方法，camelCase 事件名）；创建 SceneManager（管理场景切换、生命周期栈）；更新 main.ts 入口初始化流程",
+      "files_to_create": [
+        "web_project/src/core/EventBus.ts",
+        "web_project/src/core/SceneManager.ts",
+        "web_project/src/main.ts"
+      ],
+      "depends_on": [
+        "task_001"
+      ],
+      "test_file": "web_project/tests/test_core_infrastructure.ts",
+      "test_cases": [
+        "test_EventBus_on_emit_订阅派发",
+        "test_EventBus_off_取消订阅",
+        "test_SceneManager_场景切换",
+        "test_SceneManager_生命周期顺序"
+      ],
+      "acceptance_criteria": [
+        "EventBus 支持 on/off/emit 方法且类型安全",
+        "SceneManager 支持 push/pop/switchTo 场景切换",
+        "场景切换时正确调用 onEnter/onExit 生命周期"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:21:32.167608"
+    },
+    {
+      "id": "task_032",
+      "phase": "foundation",
+      "title": "创建 TypeScript 配置文件",
+      "description": "创建 tsconfig.json，配置 strict 模式、ES2020 目标、Canvas/WebGL 类型声明、路径别名",
+      "files_to_create": [
+        "web_project/tsconfig.json"
+      ],
+      "depends_on": [
+        "task_001"
+      ],
+      "test_file": "web_project/tests/test_tsconfig.ts",
+      "test_cases": [
+        "test_tsconfig_文件存在",
+        "test_strict模式启用"
+      ],
+      "acceptance_criteria": [
+        "tsconfig.json 存在且 tsc --noEmit 可解析",
+        "strict 模式已启用",
+        "Canvas 和 WebGL 类型声明已包含"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:21:32.167608"
+    },
+    {
+      "id": "task_017",
+      "phase": "core_systems",
+      "title": "实现道具配置加载器和库存管理",
+      "description": "实现 ItemConfigLoader 从 items.json/shop_config.json 读取道具定义和获取方式配置；实现 InventoryManager 管理道具全局库存（增/减/查/上限检测）；实现每日刷新调度（UTC+8 0点）",
+      "files_to_create": [
+        "web_project/src/systems/ItemSystem.ts"
+      ],
+      "depends_on": [
+        "task_003",
+        "task_002"
+      ],
+      "test_file": "web_project/tests/test_item_system.ts",
+      "test_cases": [
+        "test_道具配置_四类道具定义完整",
+        "test_库存_增加减少查询",
+        "test_库存上限_达上限不再增加",
+        "test_每日刷新_UTC+8重置",
+        "test_道具获取方式_从配置读取"
+      ],
+      "acceptance_criteria": [
+        "加载 items.json 和 shop_config.json 配置正确",
+        "库存管理支持增/减/查且上限为 10",
+        "每日 UTC+8 0点自动重置获取次数"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:22:30.181912",
+      "completed_at": "2026-05-09T18:25:23.852771"
+    },
+    {
+      "id": "task_006",
+      "phase": "core_systems",
+      "title": "实现 Loading 屏幕 - 启动判定与 Logo 展示",
+      "description": "实现 LoadingScreen 场景，含热启动判定（30分钟缓存）、Logo 渲染（画布中央 35%~45%）、48字真言展示",
+      "files_to_create": [
+        "web_project/src/scenes/LoadingScreen.ts"
+      ],
+      "depends_on": [
+        "task_005",
+        "task_002"
+      ],
+      "test_file": "web_project/tests/test_loading_screen.ts",
+      "test_cases": [
+        "test_热启动_30分钟内跳过Loading",
+        "test_首次启动_展示完整Loading",
+        "test_Logo_渲染位置正确",
+        "test_48字真言_文本展示"
+      ],
+      "acceptance_criteria": [
+        "lastLaunchTimestamp < 30分钟时跳过Loading直接进入主界面",
+        "首次启动或缓存过期时展示完整 Loading 画面",
+        "Logo 和 48 字真言正确居中渲染"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:22:30.181912",
+      "completed_at": "2026-05-09T18:25:23.852771"
+    },
+    {
+      "id": "task_010",
+      "phase": "core_systems",
+      "title": "实现网格管理与操作验证器",
+      "description": "实现 GridManager 类，管理 N×N 棋盘网格交点数据结构，提供坐标映射、相邻关系查询、障碍物状态读写；实现操作验证器，验证点击坐标是否有效（是否已被占用、是否在边界内、当前是否可操作）",
+      "files_to_create": [
+        "web_project/src/systems/GridManager.ts"
+      ],
+      "depends_on": [
+        "task_005"
+      ],
+      "test_file": "web_project/tests/test_grid_manager.ts",
+      "test_cases": [
+        "test_网格_7x7_交点总数64",
+        "test_网格_9x9_交点总数100",
+        "test_相邻查询_四方向正确",
+        "test_障碍物状态读写",
+        "test_操作验证_已占用点不可点击",
+        "test_操作验证_边界外点击被拒绝"
+      ],
+      "acceptance_criteria": [
+        "GridManager 支持 N×N 到 (N+1)×(N+1) 交点的正确映射",
+        "相邻查询返回上下左右四个方向正确邻居",
+        "障碍物状态可读写，重复放置被拒绝",
+        "边界外点击返回无效"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:22:30.181912",
+      "completed_at": "2026-05-09T18:25:23.852771"
+    },
+    {
+      "id": "task_014",
+      "phase": "core_systems",
+      "title": "实现关卡配置加载器与解锁管理器",
+      "description": "实现 LevelConfigLoader 从 levels.json 读取并解析关卡配置；实现 LevelUnlockManager 维护关卡解锁状态（locked/unlocked/cleared），提供进入权限判定",
+      "files_to_create": [
+        "web_project/src/systems/LevelManager.ts"
+      ],
+      "depends_on": [
+        "task_003",
+        "task_005"
+      ],
+      "test_file": "web_project/tests/test_level_manager.ts",
+      "test_cases": [
+        "test_加载_levels_json_配置正确",
+        "test_按ID查询关卡参数",
+        "test_第1关初始为解锁状态",
+        "test_第2关初始为锁定状态"
+      ],
+      "acceptance_criteria": [
+        "LevelConfigLoader 正确读取并解析 levels.json",
+        "按关卡 ID 查询返回完整配置参数",
+        "第 1 关默认 unlocked，第 2 关默认 locked"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:22:30.181912",
+      "completed_at": "2026-05-09T18:25:23.852771"
+    },
+    {
+      "id": "task_026",
+      "phase": "gameplay",
+      "title": "实现分享系统入口调度与内容生成",
+      "description": "实现 ShareSystem 入口调度器（管理主菜单/胜利/失败三个分享场景的触发和配置选择）；内容生成器（三套差异化的分享文案和图片模板：分享有礼/炫耀成绩/分享再战）",
+      "files_to_create": [
+        "web_project/src/systems/ShareSystem.ts"
+      ],
+      "depends_on": [
+        "task_005"
+      ],
+      "test_file": "web_project/tests/test_share_content.ts",
+      "test_cases": [
+        "test_主菜单分享_配置正确",
+        "test_胜利分享_炫耀文案",
+        "test_失败分享_再战文案"
+      ],
+      "acceptance_criteria": [
+        "三个分享场景各自独立的文案和配置",
+        "主菜单分享调用道具系统发放奖励",
+        "胜利/失败分享关联不同的后续行为"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_028",
+      "phase": "gameplay",
+      "title": "实现激励视频广告管理与频率控制",
+      "description": "实现 AdManager 封装 wx.createRewardedVideoAd API，提供广告加载/展示/结果回调生命周期管理；实现频率控制器（两次广告间隔≥30秒，每日上限3次，UTC+8重置）；配置加载器读取 shop_config.json 参数",
+      "files_to_create": [
+        "web_project/src/systems/AdSystem.ts"
+      ],
+      "depends_on": [
+        "task_005",
+        "task_002"
+      ],
+      "test_file": "web_project/tests/test_ad_manager.ts",
+      "test_cases": [
+        "test_广告加载_正常流程",
+        "test_广告完成_回调奖励",
+        "test_频率控制_冷却时间",
+        "test_每日上限_达上限后不可观看"
+      ],
+      "acceptance_criteria": [
+        "激励视频广告正常加载、播放、完成回调",
+        "两次广告间隔 ≥30 秒，每日上限 3 次",
+        "达上限或冷却中显示提示信息"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_030",
+      "phase": "gameplay",
+      "title": "实现设置面板与音效震动开关",
+      "description": "实现 SettingsPanel 设置面板容器（弹出层形式，既可从主界面进入也可从关卡内进入）；音效开关（toggle slide，开启绿色#4CAF50，关闭灰色#BDBDBD，200ms动画）；震动开关（同规格，切换时触发wx.vibrateShort）；状态持久化到 GameData",
+      "files_to_create": [
+        "web_project/src/ui/SettingsPanel.ts"
+      ],
+      "depends_on": [
+        "task_005",
+        "task_002"
+      ],
+      "test_file": "web_project/tests/test_settings_panel.ts",
+      "test_cases": [
+        "test_音效开关_切换与持久化",
+        "test_震动开关_切换与持久化",
+        "test_设置面板_主界面与关卡内均可打开"
+      ],
+      "acceptance_criteria": [
+        "音效/震动开关可切换，状态持久化到 localStorage",
+        "音效开关变更即刻同步到音频系统",
+        "震动开关关闭后 wx.vibrateShort 不会被调用"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_007",
+      "phase": "core_systems",
+      "title": "实现 Loading 屏幕 - 资源加载与进度条",
+      "description": "实现资源加载队列管理（图片/音频），加权进度计算（7种资源，总权重100），进度条动画（300ms ease-out），加载完成淡出切换至主界面，异常时显示重试按钮",
+      "files_to_create": [],
+      "depends_on": [
+        "task_006"
+      ],
+      "test_file": "web_project/tests/test_loading_resources.ts",
+      "test_cases": [
+        "test_进度条_从0到100平滑过渡",
+        "test_资源加载_权重计算正确",
+        "test_加载完成_自动切换场景",
+        "test_加载失败_展示重试按钮"
+      ],
+      "acceptance_criteria": [
+        "7 种资源按权重（总 100）计算进度百分比",
+        "进度条动画 300ms ease-out 平滑追赶",
+        "进度 100% 后保留 500ms 完成展示再切换场景",
+        "加载失败时显示重试按钮"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:25:23.852771"
+    },
+    {
+      "id": "task_011",
+      "phase": "core_systems",
+      "title": "实现 Boss A* 寻路引擎",
+      "description": "实现 AStarPathfinding 类，封装 A* 算法，接收当前棋盘状态和 Boss 坐标，返回下一步移动方向和完整路径。含启发函数权重参数、搜索深度上限（500节点）、100ms超时保护",
+      "files_to_create": [
+        "web_project/src/systems/AStarPathfinding.ts"
+      ],
+      "depends_on": [
+        "task_010"
+      ],
+      "test_file": "web_project/tests/test_astar_pathfinding.ts",
+      "test_cases": [
+        "test_无障碍时_Boss找到出口",
+        "test_障碍物阻挡_Boss绕路",
+        "test_完全围堵_Boss无路可走",
+        "test_搜索超时_返回默认方向",
+        "test_权重参数影响路径选择"
+      ],
+      "acceptance_criteria": [
+        "A* 算法在有路径时返回可达出口的最短路径",
+        "完全围堵时返回空路径（无路可走）",
+        "超时 100ms 内强制返回默认方向（向上）",
+        "对同一棋盘状态返回确定性结果（无随机性）"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:25:43.903301",
+      "completed_at": "2026-05-09T18:30:00"
+    },
+    {
+      "id": "task_015",
+      "phase": "core_systems",
+      "title": "实现障碍物随机生成器与死局检测",
+      "description": "实现 ObstacleGenerator 根据关卡约束（数量、排除区域）随机生成初始障碍物布局；实现死局检测算法（BFS可达性检查），不可解时自动重新生成",
+      "files_to_create": [
+        "web_project/src/systems/ObstacleGenerator.ts"
+      ],
+      "depends_on": [
+        "task_014",
+        "task_010"
+      ],
+      "test_file": "web_project/tests/test_obstacle_generator.ts",
+      "test_cases": [
+        "test_随机生成_障碍物数量正确",
+        "test_排除区域_Boss起点无障碍",
+        "test_死局检测_至少一条可达路径",
+        "test_不可解时_自动重新生成"
+      ],
+      "acceptance_criteria": [
+        "生成的障碍物数量与配置一致",
+        "Boss 起点周围排除区域内无障碍物",
+        "死局检测确保至少存在一条获胜路径",
+        "死局时自动重新生成（< 0.5% 死局率）"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:32:00"
+    },
+    {
+      "id": "task_027",
+      "phase": "gameplay",
+      "title": "实现分享执行与奖励发放",
+      "description": "封装 wx.shareAppMessage API 执行好友分享；实现分享奖励发放器（每日首次检测、随机道具发放）；分享回调处理器（成功/取消/失败处理）；分享频次控制器（每日限次、冷却时间、防刷）",
+      "files_to_create": [],
+      "depends_on": [
+        "task_026",
+        "task_017"
+      ],
+      "test_file": "web_project/tests/test_share_execution.ts",
+      "test_cases": [
+        "test_每日首次分享_发放随机道具",
+        "test_非首次分享_不发放道具",
+        "test_分享取消_不触发奖励",
+        "test_分享失败_显示错误提示"
+      ],
+      "acceptance_criteria": [
+        "调用 wx.shareAppMessage 成功发送分享",
+        "每日首次分享正确发放随机道具并更新 dailyShareCount",
+        "分享取消/失败时正确处理不回传奖励",
+        "分享频次受每日上限控制"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_029",
+      "phase": "gameplay",
+      "title": "实现广告 UI 按钮与入口",
+      "description": "实现三种广告入口：主界面广告按钮（看广告得道具）、对局内道具广告获取（道具栏+号→观看广告获取）、失败界面广告续命（观看广告重新挑战本关）；实现广告状态 UI（加载中/播放中/失败重试）",
+      "files_to_create": [],
+      "depends_on": [
+        "task_028"
+      ],
+      "test_file": "web_project/tests/test_ad_ui.ts",
+      "test_cases": [
+        "test_主界面_广告按钮展示",
+        "test_道具获取_广告完成发放道具",
+        "test_失败续命_广告完成重新挑战",
+        "test_广告失败_显示重试按钮"
+      ],
+      "acceptance_criteria": [
+        "三种广告入口在不同场景正确显示",
+        "广告完成后正确回调（发放道具/重新挑战）",
+        "广告失败时显示重试按钮"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_031",
+      "phase": "gameplay",
+      "title": "实现退出挑战与版本信息",
+      "description": "实现退出挑战功能（仅关卡内可用，点击后弹出确认对话框，确认后重置关卡状态并返回主界面）；版本信息显示（游戏版本号 0.1.0）；未来设置扩展槽预留",
+      "files_to_create": [],
+      "depends_on": [
+        "task_030"
+      ],
+      "test_file": "web_project/tests/test_settings_exit.ts",
+      "test_cases": [
+        "test_退出挑战_确认对话框",
+        "test_退出确认_重置关卡并返回主界面",
+        "test_退出取消_关闭对话框继续游戏",
+        "test_版本信息_正确显示"
+      ],
+      "acceptance_criteria": [
+        "退出挑战点击后先弹出确认对话框",
+        "确认退出后重置关卡状态并返回主界面",
+        "取消退出则关闭对话框继续游戏",
+        "版本号显示 0.1.0"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_008",
+      "phase": "core_systems",
+      "title": "实现主菜单界面 - 背景 Logo 与开始挑战按钮",
+      "description": "实现 MainMenu 场景，含全屏背景图展示、游戏 Logo（居中顶部，约 390×120px）、开始挑战按钮（300×80px，含三种文案状态：开始挑战/继续挑战/再来一局），按钮点击后播放缩放动画并切换至关卡场景",
+      "files_to_create": [
+        "web_project/src/scenes/MainMenu.ts",
+        "web_project/src/scenes/GameScene.ts"
+      ],
+      "depends_on": [
+        "task_005",
+        "task_002",
+        "task_007"
+      ],
+      "test_file": "web_project/tests/test_main_menu.ts",
+      "test_cases": [
+        "test_背景图渲染",
+        "test_Logo_位置与动画",
+        "test_开始按钮_三种文案状态",
+        "test_按钮点击_场景切换"
+      ],
+      "acceptance_criteria": [
+        "背景全屏填充，Logo 居中顶部展示",
+        "按钮文案根据关卡解锁状态变化（开始挑战/继续挑战/再来一局）",
+        "点击按钮触发缩放动画并切换到关卡场景"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:35:00"
+    },
+    {
+      "id": "task_012",
+      "phase": "core_systems",
+      "title": "实现回合控制器与胜负判定",
+      "description": "实现 TurnController 状态机（ready→playerTurn→bossMoving→judging→victory/defeat），管理玩家放置→Boss移动→胜负判定的回合循环；实现胜负判定器：Boss 无法移动=胜利，Boss 到达边界=失败，步数耗尽=失败",
+      "files_to_create": [
+        "web_project/src/systems/TurnController.ts",
+        "web_project/src/systems/WinLoseDetector.ts"
+      ],
+      "depends_on": [
+        "task_011",
+        "task_014"
+      ],
+      "test_file": "web_project/tests/test_turn_controller.ts",
+      "test_cases": [
+        "test_回合循环_放置后Boss移动",
+        "test_胜利判定_Boss完全围堵",
+        "test_失败判定_Boss到达边界",
+        "test_步数耗尽_判定失败",
+        "test_状态机_禁止连续放置"
+      ],
+      "acceptance_criteria": [
+        "回合状态机正确流转：playerTurn → bossMoving → judging → playerTurn",
+        "Boss 无法移动时发出 levelCleared 事件",
+        "Boss 到达边界或步数耗尽时发出 levelFailed 事件",
+        "禁止玩家连续放置（Boss 移动完才能再操作）"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:25:43.903301",
+      "completed_at": "2026-05-09T18:30:00"
+    },
+    {
+      "id": "task_016",
+      "phase": "core_systems",
+      "title": "实现关卡切换与进度持久化",
+      "description": "实现 LevelTransitionController 处理第1关→第2关自动跳转；实现 LevelProgressPersistence 将关卡解锁状态、通关记录写入 localStorage",
+      "files_to_create": [
+        "web_project/src/systems/LevelTransitionController.ts"
+      ],
+      "depends_on": [
+        "task_015",
+        "task_002"
+      ],
+      "test_file": "web_project/tests/test_level_transition.ts",
+      "test_cases": [
+        "test_第1关通关_自动切换到第2关",
+        "test_关卡解锁状态持久化",
+        "test_最佳步数和时间保存",
+        "test_重读存档_状态恢复正确"
+      ],
+      "acceptance_criteria": [
+        "第 1 关通关后自动触发场景切换到第 2 关",
+        "关卡解锁状态写入 localStorage 并在重启后恢复",
+        "最佳步数/时间正确存储和读取"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:32:00"
+    },
+    {
+      "id": "task_009",
+      "phase": "core_systems",
+      "title": "实现主菜单 P1 入口按钮",
+      "description": "实现排行榜入口（右侧中部，奖杯图标，弹出层式）、设置入口（左侧中部，齿轮图标，弹出层式）、分享入口（右上角，红点提示）、道具展示栏（底部横向排列四个道具图标+数量）",
+      "files_to_create": [],
+      "depends_on": [
+        "task_008"
+      ],
+      "test_file": "web_project/tests/test_main_menu_entries.ts",
+      "test_cases": [
+        "test_排行榜按钮_点击弹出层",
+        "test_设置按钮_点击弹出层",
+        "test_分享红点_每日首次提示",
+        "test_道具栏_数量显示与空态"
+      ],
+      "acceptance_criteria": [
+        "四个 P1 入口按钮均可见且触控区域 ≥ 88×88px",
+        "排行榜/设置按钮点击后弹出对应弹出层",
+        "道具栏正确显示持有数量，为 0 时置灰并显示 + 号"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_013",
+      "phase": "core_systems",
+      "title": "实现步数计数器与棋盘序列化器",
+      "description": "实现步数计数器（记录当前步数、剩余步数，与道具系统联动）；实现棋盘序列化器（将完整游戏状态序列化为 JSON 快照，用于撤销回退和断线恢复）",
+      "files_to_create": [
+        "web_project/src/systems/StepCounter.ts",
+        "web_project/src/systems/BoardSerializer.ts"
+      ],
+      "depends_on": [
+        "task_012"
+      ],
+      "test_file": "web_project/tests/test_step_serializer.ts",
+      "test_cases": [
+        "test_步数_初始值与递减",
+        "test_步数耗尽_触发失败事件",
+        "test_序列化_完整状态快照",
+        "test_反序列化_恢复棋盘"
+      ],
+      "acceptance_criteria": [
+        "步数初始值从关卡配置读取，每放置一步减 1",
+        "步数为 0 时自动触发 levelFailed",
+        "棋盘序列化包含障碍物布局、Boss 坐标、步数、道具状态",
+        "反序列化可完整恢复对局状态"
+      ],
+      "status": "done",
+      "priority": 1,
+      "started_at": "2026-05-09T18:25:43.903301",
+      "completed_at": "2026-05-09T18:30:00"
+    },
+    {
+      "id": "task_020",
+      "phase": "core_systems",
+      "title": "实现关卡结算 - 入口判定与胜利/失败界面",
+      "description": "实现 LevelResult 场景，M1 结算入口判定（第1关通关自动跳转不展示、第2关胜利/失败分别展示对应界面）；M2 胜利界面（Boss鼻青脸肿、暖色光效、胜利标题文案池）；M3 失败界面（Boss得意表情、冷色光效、失败文案池）",
+      "files_to_create": [
+        "web_project/src/scenes/LevelResult.ts"
+      ],
+      "depends_on": [
+        "task_005",
+        "task_012"
+      ],
+      "test_file": "web_project/tests/test_level_result.ts",
+      "test_cases": [
+        "test_第1关通关_不展示结算",
+        "test_第2关胜利_展示胜利界面",
+        "test_第2关失败_展示失败界面",
+        "test_胜利标题_从文案池随机"
+      ],
+      "acceptance_criteria": [
+        "第 1 关通关自动跳转第 2 关，不展示结算",
+        "胜利界面显示 Boss 受伤表情、暖色光效、随机胜利文案",
+        "失败界面显示 Boss 得意表情、冷色光效、随机失败文案"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_018",
+      "phase": "core_systems",
+      "title": "实现四种道具效果执行器",
+      "description": "实现 ItemEffectExecutor 处理四类道具效果：extra_step（步数上限+5）、undo（恢复上一步完整快照，可连续使用3次）、reset（重置关卡至初始状态）、hint（A*计算推荐放置点并高亮闪烁）",
+      "files_to_create": [],
+      "depends_on": [
+        "task_017",
+        "task_013"
+      ],
+      "test_file": "web_project/tests/test_item_effects.ts",
+      "test_cases": [
+        "test_extra_step_步数增加5",
+        "test_undo_恢复上一步状态",
+        "test_undo_连续回退多步",
+        "test_undo_无历史记录时不可用",
+        "test_reset_关卡重置",
+        "test_hint_高亮推荐放置点"
+      ],
+      "acceptance_criteria": [
+        "extra_step 使步数上限和剩余步数各 +5",
+        "undo 恢复完整棋盘快照，支持连续回退",
+        "reset 完全重置关卡至初始状态",
+        "hint 基于当前棋盘计算推荐点并高亮显示"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_021",
+      "phase": "core_systems",
+      "title": "实现关卡结算 - 统计信息与操作按钮",
+      "description": "实现结算界面统计信息展示（步数+耗时，历史最佳对比），操作按钮组（继续挑战/一会重来/我要分享），入场序列动画（遮罩淡入→Boss弹入→标题打印→统计滑入→按钮淡入）",
+      "files_to_create": [],
+      "depends_on": [
+        "task_020"
+      ],
+      "test_file": "web_project/tests/test_level_result_ui.ts",
+      "test_cases": [
+        "test_统计信息_步数耗时显示",
+        "test_继续挑战_重新开始第2关",
+        "test_一会重来_返回主界面"
+      ],
+      "acceptance_criteria": [
+        "统计面板正确显示本局步数和耗时",
+        "继续挑战按钮重新初始化第 2 关",
+        "一会重来按钮返回主菜单",
+        "入场动画序列正确执行"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_019",
+      "phase": "core_systems",
+      "title": "实现道具状态 UI 与对局内道具管理",
+      "description": "实现 ItemStatusUI 在关卡界面展示道具栏（可用显示数量/不可用显示+号/耗尽置灰+Toast）；实现 InGameItemManager 管理每局已使用次数，判断是否可继续使用",
+      "files_to_create": [
+        "web_project/src/ui/ItemBar.ts"
+      ],
+      "depends_on": [
+        "task_018"
+      ],
+      "test_file": "web_project/tests/test_item_ui.ts",
+      "test_cases": [
+        "test_道具栏_三种状态展示",
+        "test_可用_显示数量",
+        "test_不可用_显示加号",
+        "test_耗尽_置灰加Toast",
+        "test_每局限次_达上限后不可用"
+      ],
+      "acceptance_criteria": [
+        "道具栏正确展示可用/不可用/耗尽三种状态",
+        "每局使用次数正确计数，达上限后不可用",
+        "置灰道具点击时弹出 Toast 提示"
+      ],
+      "status": "done",
+      "priority": 1,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_023",
+      "phase": "gameplay",
+      "title": "实现排行榜最佳成绩判定与三维度排名管理",
+      "description": "实现 LeaderboardSystem 最佳成绩判定器（对局结束后比较新成绩与历史最佳，仅更优时触发更新）；三维度排名管理（通关数/最少步数/最快时间，标签页切换逻辑，排序规则：通关数降序/步数升序/时间升序）",
+      "files_to_create": [
+        "web_project/src/systems/LeaderboardSystem.ts"
+      ],
+      "depends_on": [
+        "task_002",
+        "task_021"
+      ],
+      "test_file": "web_project/tests/test_leaderboard_system.ts",
+      "test_cases": [
+        "test_最佳成绩_更优时更新",
+        "test_最佳成绩_未更优时不更新",
+        "test_三维度排序_正确规则",
+        "test_仅第2关数据计入排行"
+      ],
+      "acceptance_criteria": [
+        "对局结束后新成绩优于历史最佳才触发更新",
+        "三个维度排序规则正确（通关数降序、步数/时间升序）",
+        "第 1 关数据不计入排行榜"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_022",
+      "phase": "core_systems",
+      "title": "实现道具获取弹窗",
+      "description": "实现 ItemAcquisitionPopup 弹窗，玩家点击道具 + 号时弹出，显示获取方式：分享给好友/观看激励视频广告，根据 shop_config.json 配置动态显示可用按钮",
+      "files_to_create": [
+        "web_project/src/ui/ItemPopup.ts"
+      ],
+      "depends_on": [
+        "task_019",
+        "task_027",
+        "task_029"
+      ],
+      "test_file": "web_project/tests/test_item_popup.ts",
+      "test_cases": [
+        "test_弹窗_广告门控仅显示广告按钮",
+        "test_弹窗_分享门控仅显示分享按钮",
+        "test_弹窗_双通道显示两个按钮",
+        "test_弹窗_获取成功关闭"
+      ],
+      "acceptance_criteria": [
+        "弹窗根据 shop_config 动态显示对应获取按钮",
+        "广告门控只显示广告按钮，分享门控只显示分享按钮",
+        "获取成功后关闭弹窗并更新道具栏"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_024",
+      "phase": "gameplay",
+      "title": "实现排行榜微信开放数据域集成",
+      "description": "封装 wx.setFriendCloudStorage（上传最佳成绩）和 wx.getFriendCloudStorage（拉取好友排名数据），通过 SharedCanvas 在开放数据域渲染好友排行列表",
+      "files_to_create": [],
+      "depends_on": [
+        "task_023"
+      ],
+      "test_file": "web_project/tests/test_leaderboard_wechat.ts",
+      "test_cases": [
+        "test_数据上传_调用setFriendCloudStorage",
+        "test_数据拉取_解析好友排名",
+        "test_上传失败_重试机制"
+      ],
+      "acceptance_criteria": [
+        "成绩上传调用 wx.setFriendCloudStorage 成功",
+        "好友排行数据通过 wx.getFriendCloudStorage 正确拉取",
+        "网络异常时有重试或降级处理"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    },
+    {
+      "id": "task_025",
+      "phase": "gameplay",
+      "title": "实现排行榜 UI 渲染",
+      "description": "实现排行榜弹出层 UI（半透明遮罩+面板），标签页切换（通关数/最少步数/最快时间），好友列表渲染（排名/头像/昵称/成绩），自我排名高亮，空状态引导",
+      "files_to_create": [
+        "web_project/src/ui/LeaderboardPanel.ts"
+      ],
+      "depends_on": [
+        "task_024"
+      ],
+      "test_file": "web_project/tests/test_leaderboard_ui.ts",
+      "test_cases": [
+        "test_排行榜_弹出层展示",
+        "test_标签切换_三个维度",
+        "test_自我排名_高亮显示",
+        "test_空状态_引导文字与邀请按钮"
+      ],
+      "acceptance_criteria": [
+        "排行榜弹出层从右侧滑入，面板 500×700px",
+        "三个标签页可切换，排序正确",
+        "自我排名条目高亮显示",
+        "无数据时显示引导文字和邀请好友按钮"
+      ],
+      "status": "done",
+      "priority": 2,
+      "completed_at": "2026-05-09T18:40:00"
+    }
+  ]
+}

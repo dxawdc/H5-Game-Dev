@@ -1,0 +1,45 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "name": "初识Boss",
+      "description": "跟着引导，学习如何围住Boss吧！",
+      "gridSize": 7,
+      "bossStart": { "x": 3, "y": 3 },
+      "exits": "all_boundaries",
+      "initialObstacles": {
+        "count": 4,
+        "fixed": [
+          { "x": 0, "y": 1 },
+          { "x": 1, "y": 0 },
+          { "x": 6, "y": 5 },
+          { "x": 5, "y": 6 }
+        ],
+        "randomCount": 0,
+        "excludeRadius": 2
+      },
+      "maxSteps": 99,
+      "bossSpeed": 1.0,
+      "unlockCondition": null,
+      "isReplayable": false
+    },
+    {
+      "id": 2,
+      "name": "全力围堵",
+      "description": "Boss变强了！在9x9的战场上围住它！",
+      "gridSize": 9,
+      "bossStart": { "x": 4, "y": 4 },
+      "exits": "all_boundaries",
+      "initialObstacles": {
+        "count": 2,
+        "fixed": [],
+        "randomCount": 2,
+        "excludeRadius": 2
+      },
+      "maxSteps": 30,
+      "bossSpeed": 1.0,
+      "unlockCondition": "level_1_cleared",
+      "isReplayable": true
+    }
+  ]
+}
